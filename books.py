@@ -4,13 +4,13 @@ class Books:
     def __init__(self, db):
         self.__db = db
 
-        self.__ISBN     = 0
+        self.__ISBN     = ""
         self.__publisher = ""
-        self.__year    = 0
+        self.__year    = ""
         self.__genre  = ""
         self.__title = ""
-        self.__price = 0.0
-        self.__amount = 0
+        self.__price = ""
+        self.__amount = ""
 
 #Getters
     def getGenre(self):
@@ -56,4 +56,5 @@ class Books:
         print("Adding new book")
 
     def __loadBooks(self, username):
-        response = self.__db.cursor.execute("SELECT * FROM books WHERE username = ?", (username,))
+        response = self.__db.cursor.execute("SELECT * FROM books")
+        response.fetchall()
