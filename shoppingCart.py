@@ -44,11 +44,11 @@ class shoppingCart:
         return response.fetchall()
 
     def getQuantity(self, username):
-        quantityTotal = 0;
+        quantityTotal = 0
 
         # This is very incorrect, but I am looking into how to iterate this to get an accurate total.
         quantityTotal += self.__db.cursor.execute("SELECT quantity FROM shoppingCart WHERE username = ?", (username, ))
-        return quantityTotal;
+        return quantityTotal
 
     def checkoutCart(self, username):
         # Not quite sure what this is exactly supposed to do, so I just set it up to delete everything out of the user's cart
