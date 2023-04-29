@@ -55,6 +55,6 @@ class Books:
     def addBookMessage(db, cr):
         print("Adding new book")
 
-    def __loadBooks(self, username):
+    def __loadBooks(self):
         response = self.__db.cursor.execute("SELECT * FROM books")
         response.fetchall()
