@@ -10,7 +10,7 @@ class order:
         self.__username =""
         self.__date =""
         self.__shippingNumber=""
-        self.__isbn=""
+    
 
 
     def usernameTaken(self, username):
@@ -26,7 +26,7 @@ class order:
                 self.__date,
                 self.__shippingNumber)
     
-    def createOrder(self, orderId, username, date, shippingNumber, isbn):
+    def createOrder(self, orderId, username, date, shippingNumber):
         if not self.__loggedIn:
             if not (self.usernameTaken(username)):
                 self.__orderId = orderId
