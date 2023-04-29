@@ -1,5 +1,3 @@
-import shoppingCart
-
 class Books:
     def __init__(self, db):
         self.__db = db
@@ -36,8 +34,7 @@ class Books:
                 genres.append(book[3])
         return genres
 
-def addCartMenu(db, cr, bks, username, isbn, bk_menu):
-    crt = shoppingCart.ShoppingCart(db, bks)
+def addCartMenu(crt, username, isbn, bk_menu):
     success = crt.addCart(username, isbn, 1)
     if success:
         print()
@@ -47,8 +44,7 @@ def addCartMenu(db, cr, bks, username, isbn, bk_menu):
         print("Not enough in stock!")
     return "Book Options", bk_menu
 
-def removeCartMenu(db, cr, bks, username, isbn, bk_menu):
-    crt = shoppingCart.ShoppingCart(db, bks)
+def removeCartMenu(crt, username, isbn, bk_menu):
     success = crt.removeCart(username, isbn)
     if success:
         print()
@@ -58,7 +54,7 @@ def removeCartMenu(db, cr, bks, username, isbn, bk_menu):
         print("Book not in cart!")
     return "Book Options", bk_menu
 
-def showBookMenu(db, cr, bks, book, return_genre):
+def showBookMenu(cr, bks, crt, book, return_genre):
     print("Book Information")
     print(f"Title: {book[4]}")
     print(f"Author: {book[5]}")
@@ -72,22 +68,23 @@ def showBookMenu(db, cr, bks, book, return_genre):
     bk_menu = {}
 
     if return_genre:
-        bk_menu["Go Back"] = (getBooksMenu, [return_genre])
+        bk_menu["Go Back"] = (getBooksMenu, (cr, bks, crt, return_genre))
     else:
-        bk_menu["Go Back"] = getBooksMenu
+        bk_menu["Go Back"] = (getBooksMenu, (cr, bks, crt))
 
-    bk_menu["Add Book to Cart"] = (addCartMenu, [bks, cr.getUsername(), book[0], bk_menu])
-    bk_menu["Remove Book to Cart"] = (removeCartMenu, [bks, cr.getUsername(), book[0], bk_menu])
+    bk_menu["Add Book to Cart"] = (addCartMenu, (crt, cr.getUsername(), book[0], bk_menu))
+    bk_menu["Remove Book to Cart"] = (removeCartMenu, (crt, cr.getUsername(), book[0], bk_menu))
 
     return "Book Options", bk_menu
 
-def getBooksMenu(db, cr, genre=None):
-    bks = Books(db)
-
+def getBooksMenu(cr, bks, crt, genre=None):
     bks_menu = {}
     bks_title = ""
 
-    bks_menu["Go Back"] = "Main Menu"
+    if genre:
+        bks_menu["Go Back"] = (selectCategoryMenu, (cr, bks, crt))
+    else:
+        bks_menu["Go Back"] = "Main Menu"
 
     if genre:
         books = bks.getBooksByGenre(genre)
@@ -97,18 +94,16 @@ def getBooksMenu(db, cr, genre=None):
         bks_title = "All Books"
 
     for book in books:
-        bks_menu[f'"{book[4]}" by {book[5]} ({book[2]}) - ${book[6]} - {book[3]}'] = (showBookMenu, [bks, book, genre])
+        bks_menu[f'"{book[4]}" by {book[5]} ({book[2]}) - ${book[6]} - {book[3]}'] = (showBookMenu, (cr, bks, crt, book, genre))
 
     return bks_title, bks_menu
 
-def selectCategoryMenu(db, cr):
-    bks = Books(db)
-
+def selectCategoryMenu(cr, bks, crt):
     genres_menu = {}
 
     genres_menu["Go Back"] = "Main Menu"
 
     for genre in bks.getGenres():
-        genres_menu[genre] = (getBooksMenu, [genre])
+        genres_menu[genre] = (getBooksMenu, (cr, bks, crt, genre))
 
     return "Select a Genre to Browse", genres_menu

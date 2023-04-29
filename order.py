@@ -1,6 +1,3 @@
-
-from getpass import getpass
-
 class order:
     def __init__(self, db):
         self.__db = db

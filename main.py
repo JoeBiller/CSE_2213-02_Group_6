@@ -6,36 +6,37 @@ import shoppingCart
 
 db = database.Database("project.db")
 cr = customer.Customer(db)
+bks = books.Books(db)
+crt = shoppingCart.ShoppingCart(db, bks)
 
-
-def leave(db, cr, code=0):
+def leave(code=0):
     print("Exiting program.")
     exit(code)
 
 menu_system = {
     "Welcome Menu": {
-        "Login":          customer.loginMenu,
-        "Create Account": customer.createAccountMenu,
+        "Login":          (customer.loginMenu, (cr,)),
+        "Create Account": (customer.createAccountMenu, (cr,)),
         "Exit":           leave
     },
     "Main Menu": {
-        "Browse All Books": books.getBooksMenu,
-        "Browse Books by Category": books.selectCategoryMenu,
-        "Cart Information": shoppingCart.viewCartMenu,
-        "Edit Account": customer.infoMenu,
-        "Logout":       customer.logoutMenu,
+        "Browse All Books": (books.getBooksMenu, (cr, bks, crt)),
+        "Browse Books by Category": (books.selectCategoryMenu, (cr, bks, crt)),
+        "Cart Information": (shoppingCart.viewCartMenu, (cr, bks, crt)),
+        "Edit Account": (customer.infoMenu, (cr,)),
+        "Logout":       (customer.logoutMenu, (cr,)),
         "Exit":         leave
     },
     "Edit Account": {
         "Go Back":   "Main Menu",
-        "Current Account Information": customer.infoMenu,
-        "Edit Name": (customer.setCustomerMenu, ["your name", cr.setName]),
-        "Edit Username": (customer.setCustomerMenu, ["a username", cr.setUsername]),
-        "Edit Email": (customer.setCustomerMenu, ["an email address", cr.setEmail]),
-        "Edit Password": customer.changePasswordMenu,
-        "Edit Card Info": (customer.setCustomerMenu, ["your credit card number", cr.setCCNumber]),
-        "Edit Address": (customer.setCustomerMenu, ["your address", cr.setAddress]),
-        "Delete Account": customer.deleteMenu,
+        "Current Account Information": (customer.infoMenu, (cr,)),
+        "Edit Name": (customer.setCustomerMenu, (cr, "your name", cr.setName)),
+        "Edit Username": (customer.setCustomerMenu, (cr, "a username", cr.setUsername)),
+        "Edit Email": (customer.setCustomerMenu, (cr, "an email address", cr.setEmail)),
+        "Edit Password": (customer.changePasswordMenu, (cr,)),
+        "Edit Card Info": (customer.setCustomerMenu, (cr, "your credit card number", cr.setCCNumber)),
+        "Edit Address": (customer.setCustomerMenu, (cr, "your address", cr.setAddress)),
+        "Delete Account": (customer.deleteMenu, (cr,)),
     }
 }
 
@@ -95,7 +96,7 @@ def main(menu_system, db, cr):
             nonlocal cr
 
             print()
-            menu, options = func_name(db, cr, *func_args)
+            menu, options = func_name(*func_args)
 
             if options:
                 custom_menu_name = menu
@@ -113,7 +114,7 @@ def main(menu_system, db, cr):
             navigate_to(options[selection])
         elif type(options[selection]) is tuple:
             if len(options[selection]) == 2:
-                if callable(options[selection][0]) and type(options[selection][1]) is list:
+                if callable(options[selection][0]) and type(options[selection][1]) is tuple:
                     execute_func(options[selection][0], options[selection][1])
                     continue
             print()

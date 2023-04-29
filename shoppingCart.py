@@ -1,5 +1,3 @@
-import books
-
 class ShoppingCart:
     def __init__(self, db, bks):
         self.__db = db
@@ -54,7 +52,7 @@ class ShoppingCart:
         # Not quite sure what this is exactly supposed to do, so I just set it up to delete everything out of the user's cart
         self.__db.cursor.execute("DELETE FROM shoppingCart WHERE username = ?", (username,))
 
-def removeCartMenu(db, cr, bks, crt, isbn=None):
+def removeCartMenu(cr, bks, crt, isbn=None):
     if isbn:
         success = crt.removeCart(cr.getUsername(), isbn)
         if success:
@@ -66,30 +64,31 @@ def removeCartMenu(db, cr, bks, crt, isbn=None):
 
     remove_menu = {}
 
-    remove_menu["Go Back"] = viewCartMenu
+    remove_menu["Go Back"] = (viewCartMenu, (cr, bks, crt))
 
     cart_items = crt.viewCart(cr.getUsername())
     for item in cart_items:
         book = bks.getBookByISBN(item[1])
-        remove_menu[f'"{book[4]}" by {book[5]} ({book[2]})'] = (removeCartMenu, [bks, crt, item[1]])
+        remove_menu[f'"{book[4]}" by {book[5]} ({book[2]})'] = (removeCartMenu, (cr, bks, crt, item[1]))
 
     return "Select a Book to Remove", remove_menu
 
-def viewCartMenu(db, cr):
-    bks = books.Books(db)
-    crt = ShoppingCart(db, bks)
-
+def viewCartMenu(cr, bks, crt):
     cart_menu = {}
 
     cart_menu["Go Back"] = "Main Menu"
 
-    print("Current Items in Cart")
     cart_items = crt.viewCart(cr.getUsername())
+
+    if cart_items:    
+        print("Current Books in Cart")
+    else:
+        print("No Books in Cart")
     for item in cart_items:
         book = bks.getBookByISBN(item[1])
         print(f'Qty: {item[2]} Price: ${book[6]} - "{book[4]}" by {book[5]} ({book[2]}) - {book[3]}')
 
-    cart_menu["Remove Book from Cart"] = (removeCartMenu, [bks, crt])
+    cart_menu["Remove Book from Cart"] = (removeCartMenu, (cr, bks, crt))
 
     cart_menu["Checkout"] = "Placeholder"
 

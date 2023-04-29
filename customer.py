@@ -152,6 +152,7 @@ class Customer:
             if self.__username == username:
                 self.logout()
                 self.__db.cursor.execute("DELETE FROM customers WHERE username = ?", (username,))
+                self.__db.cursor.execute("DELETE FROM shoppingCart WHERE username = ?", (username,))
                 self.__db.connection.commit()
                 return True, f"Account successfully deleted. Goodbye forever {username}."
             else:
@@ -206,7 +207,7 @@ class Customer:
         else:
             return False, "You are already logged out."
 
-def createAccountMenu(db, cr):
+def createAccountMenu(cr):
     username         = None
     email            = None
     password         = None
@@ -233,7 +234,7 @@ def createAccountMenu(db, cr):
     if password != password_confirm:
         print()
         print("Passwords do not match.")
-        return None, None
+        return "Welcome Menu", None
 
     success, message = cr.createAccount(None, username, email, None, None, password)
 
@@ -244,9 +245,9 @@ def createAccountMenu(db, cr):
     else:
         print()
         print(message)
-        return None, None
+        return "Welcome Menu", None
 
-def logoutMenu(db, cr):
+def logoutMenu(cr):
     success, message = cr.logout()
     if success:
         print()
@@ -255,9 +256,9 @@ def logoutMenu(db, cr):
     else:
         print()
         print(message)
-        return None, None
+        return "Main Menu", None
 
-def loginMenu(db, cr):
+def loginMenu(cr):
     username = None
     password = None
 
@@ -278,9 +279,9 @@ def loginMenu(db, cr):
     else:
         print()
         print(message)
-        return None, None
+        return "Welcome Menu", None
 
-def deleteMenu(db, cr):
+def deleteMenu(cr):
     print("WARNING: Account deletion is permanent!")
     print("Press enter to cancel.")
     print()
@@ -296,9 +297,9 @@ def deleteMenu(db, cr):
     else:
         print()
         print(message)
-        return None, None
+        return "Edit Account", None
 
-def infoMenu(db, cr):
+def infoMenu(cr):
     def printPretty(name, value, hidden=False):
         if value:
             if not hidden:
@@ -317,7 +318,7 @@ def infoMenu(db, cr):
 
     return "Edit Account", None
 
-def changePasswordMenu(db, cr):
+def changePasswordMenu(cr):
     old_password     = None
     new_password     = None
     password_confirm = None
@@ -334,16 +335,16 @@ def changePasswordMenu(db, cr):
     if new_password != password_confirm:
         print()
         print("New passwords do not match.")
-        return None, None
+        return "Edit Account", None
 
     success, message = cr.setPassword(old_password, new_password)
 
     print()
     print(message)
 
-    return None, None
+    return "Edit Account", None
 
-def setCustomerMenu(db, cr, text, func):
+def setCustomerMenu(cr, text, func):
     value = input(f"Please type in {text}: ")
 
     success, message = func(value)
@@ -352,4 +353,4 @@ def setCustomerMenu(db, cr, text, func):
     print(message)
 
     print()
-    return infoMenu(db, cr)
+    return infoMenu(cr)
