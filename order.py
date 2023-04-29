@@ -11,14 +11,6 @@ class order:
         self.__date =""
         self.__shippingNumber=""
     
-
-
-    def usernameTaken(self, username):
-         response = self.__db.cursor.execute("SELECT * FROM customers WHERE username = ?", (username,))
-         if response.fetchone():
-            return True
-         else:
-            return False
     
     def __getorderTuple(self):
         return (self.__orderId,
@@ -43,7 +35,6 @@ class order:
                 return True, f"Order created. Welcome {username}."
             
 
-    
 
             
     def setUsername(self, username):
