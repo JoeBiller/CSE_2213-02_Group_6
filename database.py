@@ -6,4 +6,4 @@ class Database:
         self.cursor     = self.connection.cursor()
 
         self.cursor.execute("CREATE TABLE IF NOT EXISTS customers(name, username, email, address, ccNumber, password)")
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS books(ISBN, publisher, year, genre, title, price, amount)")
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS books(ISBN, publisher, year, genre, title, author, price, amount)")

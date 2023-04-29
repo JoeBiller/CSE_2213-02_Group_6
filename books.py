@@ -4,42 +4,6 @@ class Books:
     def __init__(self, db):
         self.__db = db
 
-        self.__ISBN     = ""
-        self.__publisher = ""
-        self.__year    = ""
-        self.__genre  = ""
-        self.__title = ""
-        self.__price = ""
-        self.__amount = ""
-
-#Getters
-    def getGenre(self):
-        return self.__genre
-
-    def getPublisher(self):
-        return self.__publisher
-
-    def getYear(self):
-        return self.__year
-
-    def getTitle(self):
-        return self.__title
-
-    def getISBN(self):
-        return self.__ISBN
-
-    def getAmount(self):
-        return self.__amount
-
-    def __getBooksTuple(self):
-        return (self.__genre,
-            self.__publisher,
-            self.__year,
-            self.__title,
-            self.__ISBN,
-            self.__price,
-            self.__amount)
-
 #Setters
     def setAmount(self, amount, isbn):
         self.__db.cursor.execute("UPDATE books SET amount = ? WHERE ISBN = ?", (amount, isbn,))
@@ -52,13 +16,71 @@ class Books:
         else:
             return False
 
-    def addBookMessage(db, cr):
-        print("Adding new book")
-
     def getAllBooks(self):
         response = self.__db.cursor.execute("SELECT * FROM books")
         return response.fetchall()
 
-    def selectBooksFromGenre(self, genre):
-        response = self.__db.cursor.execute("SELECT * FROM books WHERE genre = ?", genre)
+    def getBooksByGenre(self, genre):
+        response = self.__db.cursor.execute("SELECT * FROM books WHERE genre = ?", (genre,))
         return response.fetchall()
+
+    def getGenres(self):
+        books = self.getAllBooks()
+        genres = []
+        for book in books:
+            if book[3] not in genres:
+                genres.append(book[3])
+        return genres
+        
+
+def showBookMenu(db, cr, book, return_genre):
+    print("Book Information")
+    print(f"Title: {book[4]}")
+    print(f"Author: {book[5]}")
+    print(f"Year: {book[2]}")
+    print(f"Genre: {book[3]}")
+    print(f"Publisher: {book[1]}")
+    print(f"ISBN: {book[0]}")
+    print(f"Price: ${book[6]}")
+    print(f"Amount: {book[7]}")
+
+    bk_menu = {}
+
+    if return_genre:
+        bk_menu["Go Back"] = (getBooksMenu, [return_genre])
+    else:
+        bk_menu["Go Back"] = getBooksMenu
+
+    return "Book Options", bk_menu
+
+def getBooksMenu(db, cr, genre=None):
+    bks = Books(db)
+
+    bks_menu = {}
+    bks_title = ""
+
+    bks_menu["Go Back"] = "Main Menu"
+
+    if genre:
+        books = bks.getBooksByGenre(genre)
+        bks_title = f"By Category: {genre}"
+    else:
+        books = bks.getAllBooks()
+        bks_title = "All Books"
+
+    for book in books:
+        bks_menu[f'"{book[4]}" by {book[5]} ({book[2]}) - ${book[6]} - {book[3]}'] = (showBookMenu, [book, genre])
+
+    return bks_title, bks_menu
+
+def selectCategoryMenu(db, cr):
+    bks = Books(db)
+
+    genres_menu = {}
+
+    genres_menu["Go Back"] = "Main Menu"
+
+    for genre in bks.getGenres():
+        genres_menu[genre] = (getBooksMenu, [genre])
+
+    return "Select a Genre to Browse", genres_menu

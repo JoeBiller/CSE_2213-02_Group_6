@@ -18,12 +18,11 @@ menu_system = {
         "Exit":           leave
     },
     "Main Menu": {
+        "Browse All Books": books.getBooksMenu,
+        "Browse Books by Category": books.selectCategoryMenu,
         "Edit Account": customer.infoMenu,
         "Logout":       customer.logoutMenu,
         "Exit":         leave
-    },
-    "Edit Book Inventory": {
-        "Exit": leave
     },
     "Edit Account": {
         "Go Back":   "Main Menu",
@@ -99,9 +98,12 @@ def main(menu_system, db, cr):
             if options:
                 custom_menu_name = menu
                 custom_menu_options = options
-
-            if menu:
+            elif menu:
                 navigate_to(menu)
+            else:
+                print()
+                print("There appears to be a problem with this option.")
+                print("Please try another option.")
 
         if callable(options[selection]):
             execute_func(options[selection])
