@@ -5,9 +5,9 @@ import order
 
 db = database.Database("project.db")
 cr = customer.Customer(db)
-br = books.Books(db)
 
-def leave(db, cr, br, code=0):
+
+def leave(db, cr, code=0):
     print("Exiting program.")
     exit(code)
 
@@ -18,13 +18,11 @@ menu_system = {
         "Exit":           leave
     },
     "Main Menu": {
-        "Edit Book Inventory": books.addBookMessage,
         "Edit Account": customer.infoMenu,
         "Logout":       customer.logoutMenu,
         "Exit":         leave
     },
     "Edit Book Inventory": {
-        "Add New Book": books.addBookMenu,
         "Exit": leave
     },
     "Edit Account": {
@@ -40,7 +38,7 @@ menu_system = {
     }
 }
 
-def main(menu_system, db, cr, br):
+def main(menu_system, db, cr):
     current_menu_name = "Welcome Menu"
 
     custom_menu_name = None
@@ -94,10 +92,9 @@ def main(menu_system, db, cr, br):
             nonlocal custom_menu_options
             nonlocal db
             nonlocal cr
-            nonlocal br
 
             print()
-            menu, options = func_name(db, cr, br, *func_args)
+            menu, options = func_name(db, cr, *func_args)
 
             if options:
                 custom_menu_name = menu
@@ -125,7 +122,7 @@ def main(menu_system, db, cr, br):
 
 if __name__ == "__main__":
     try:
-        main(menu_system, db, cr, br)
+        main(menu_system, db, cr)
     except KeyboardInterrupt:
         print("Keyboard Interrupt")
         exit(1)

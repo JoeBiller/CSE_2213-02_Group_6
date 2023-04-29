@@ -42,7 +42,7 @@ class Books:
 
 #Setters
     def setAmount(self, amount, isbn):
-        self.__db.cursor.execute("UPDATE books SET amount = {amount} WHERE ISBN = {isbn}")
+        self.__db.cursor.execute("UPDATE books SET amount = ? WHERE ISBN = ?", (amount, isbn))
 
 #Check if ISBN exists (Primary key of books, no duplicates)
     def ISBNTaken(self, ISBN):
@@ -52,43 +52,8 @@ class Books:
         else:
             return False
 
-#Add book to inventory
-    def addBook(self, genre, publisher, year, title, ISBN, price, amount):
-        if not (self.ISBN(ISBN)):
-            self.__genre     = genre
-            self.__publisher = publisher
-            self.__year      = year
-            self.__title     = title
-            self.__ISBN      = isbn
-            self.__price     = price
-            self.__amount    = amount
+    def addBookMessage(db, cr):
+        print("Adding new book")
 
-            self.__db.cursor.execute("INSERT INTO books VALUES(?, ?, ?, ?, ?, ?)", 
-            self.__getBooksTuple())
-            self.__db.connection.commit()
-
-            return True, f"Book {title} added. ISBN:{isbn}."
-        else:
-            return False, "A book with this ISBN already exists!"
-
-
-def addBookMenu(db, cr, br):
-
-    genre = input("Please input the genre of the book: ")
-    publisher = input("Please input the publisher of the book: ")
-    year = input("Please input the year of the book: ")
-    title = input("Please input the title of the book: ")
-    ISBN = input("Please input the ISBN of the book: ")
-    price = input("Please input the price of the book: ")
-    amount = input("Please input the amount of the book: ")
-
-
-    success, message = br.addBook(genre, publisher, year, title, ISBN, price, amount)
-
-    print()
-    print(message)
-
-    return None, None
-
-def addBookMessage(db, cr, br):
-    print("Adding new book")
+    def __loadBooks(self, username):
+        response = self.__db.cursor.execute("SELECT * FROM books WHERE username = ?", (username,))
