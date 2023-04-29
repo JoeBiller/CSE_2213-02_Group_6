@@ -42,11 +42,11 @@ class Books:
 
 #Setters
     def setAmount(self, amount, isbn):
-        self.__db.cursor.execute("UPDATE books SET amount = ? WHERE ISBN = ?", (amount, isbn))
+        self.__db.cursor.execute("UPDATE books SET amount = ? WHERE ISBN = ?", (amount, isbn,))
 
 #Check if ISBN exists (Primary key of books, no duplicates)
-    def ISBNTaken(self, ISBN):
-        response = self.__db.cursor.execute("SELECT * FROM books WHERE ISBN = ?", (ISBN,))
+    def ISBNTaken(self, isbn):
+        response = self.__db.cursor.execute("SELECT * FROM books WHERE ISBN = ?", (isbn,))
         if response.fetchone():
             return True
         else:
@@ -57,4 +57,8 @@ class Books:
 
     def getAllBooks(self):
         response = self.__db.cursor.execute("SELECT * FROM books")
+        return response.fetchall()
+
+    def selectBooksFromGenre(self, genre):
+        response = self.__db.cursor.execute("SELECT * FROM books WHERE genre = ?", genre)
         return response.fetchall()
