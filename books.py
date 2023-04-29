@@ -1,4 +1,4 @@
-#Books class
+import shoppingCart
 
 class Books:
     def __init__(self, db):
@@ -16,6 +16,10 @@ class Books:
         else:
             return False
 
+    def getBookByISBN(self, isbn):
+        response = self.__db.cursor.execute("SELECT * FROM books WHERE isbn = ?", (isbn,))
+        return response.fetchone()
+
     def getAllBooks(self):
         response = self.__db.cursor.execute("SELECT * FROM books")
         return response.fetchall()
@@ -31,9 +35,30 @@ class Books:
             if book[3] not in genres:
                 genres.append(book[3])
         return genres
-        
 
-def showBookMenu(db, cr, book, return_genre):
+def addCartMenu(db, cr, bks, username, isbn, bk_menu):
+    crt = shoppingCart.ShoppingCart(db, bks)
+    success = crt.addCart(username, isbn, 1)
+    if success:
+        print()
+        print("Book added to cart!")
+    else:
+        print()
+        print("Not enough in stock!")
+    return "Book Options", bk_menu
+
+def removeCartMenu(db, cr, bks, username, isbn, bk_menu):
+    crt = shoppingCart.ShoppingCart(db, bks)
+    success = crt.removeCart(username, isbn)
+    if success:
+        print()
+        print("Book removed from cart!")
+    else:
+        print()
+        print("Book not in cart!")
+    return "Book Options", bk_menu
+
+def showBookMenu(db, cr, bks, book, return_genre):
     print("Book Information")
     print(f"Title: {book[4]}")
     print(f"Author: {book[5]}")
@@ -50,6 +75,9 @@ def showBookMenu(db, cr, book, return_genre):
         bk_menu["Go Back"] = (getBooksMenu, [return_genre])
     else:
         bk_menu["Go Back"] = getBooksMenu
+
+    bk_menu["Add Book to Cart"] = (addCartMenu, [bks, cr.getUsername(), book[0], bk_menu])
+    bk_menu["Remove Book to Cart"] = (removeCartMenu, [bks, cr.getUsername(), book[0], bk_menu])
 
     return "Book Options", bk_menu
 
@@ -69,7 +97,7 @@ def getBooksMenu(db, cr, genre=None):
         bks_title = "All Books"
 
     for book in books:
-        bks_menu[f'"{book[4]}" by {book[5]} ({book[2]}) - ${book[6]} - {book[3]}'] = (showBookMenu, [book, genre])
+        bks_menu[f'"{book[4]}" by {book[5]} ({book[2]}) - ${book[6]} - {book[3]}'] = (showBookMenu, [bks, book, genre])
 
     return bks_title, bks_menu
 

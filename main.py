@@ -2,6 +2,7 @@ import database
 import customer
 import books
 import order
+import shoppingCart
 
 db = database.Database("project.db")
 cr = customer.Customer(db)
@@ -20,6 +21,7 @@ menu_system = {
     "Main Menu": {
         "Browse All Books": books.getBooksMenu,
         "Browse Books by Category": books.selectCategoryMenu,
+        "Cart Information": shoppingCart.viewCartMenu,
         "Edit Account": customer.infoMenu,
         "Logout":       customer.logoutMenu,
         "Exit":         leave

@@ -7,3 +7,4 @@ class Database:
 
         self.cursor.execute("CREATE TABLE IF NOT EXISTS customers(name, username, email, address, ccNumber, password)")
         self.cursor.execute("CREATE TABLE IF NOT EXISTS books(ISBN, publisher, year, genre, title, author, price, amount)")
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS shoppingCart(username, ISBN, quantity)")
