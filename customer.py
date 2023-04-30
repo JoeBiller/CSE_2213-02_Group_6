@@ -59,20 +59,6 @@ class Customer:
         response = self.__db.cursor.execute("UPDATE customers SET name = ?, username = ?, email = ?, address = ?, ccNumber = ?, password = ? WHERE username = ?", self.__getCustomerTuple() + (username,))
         self.__db.connection.commit()
 
-    def setUsername(self, username):
-        if self.__loggedIn:
-            if not username:
-                return False, "You must specify a username."
-            old_username = self.__username
-            if not self.usernameTaken(username):
-                self.__username = username
-                self.__saveCustomer(old_username)
-                return True, f"Your username is now {self.__username}."
-            else:
-                return False, "Username is already taken."
-        else:
-            return False, "You are not logged in."
-
     def setEmail(self, email):
         if self.__loggedIn:
             if not email:
@@ -153,6 +139,7 @@ class Customer:
                 self.logout()
                 self.__db.cursor.execute("DELETE FROM customers WHERE username = ?", (username,))
                 self.__db.cursor.execute("DELETE FROM shoppingCart WHERE username = ?", (username,))
+                self.__db.cursor.execute("DELETE FROM orders WHERE username = ?", (username,))
                 self.__db.connection.commit()
                 return True, f"Account successfully deleted. Goodbye forever {username}."
             else:
@@ -305,7 +292,7 @@ def infoMenu(cr):
             if not hidden:
                 print(f"{name}: {value}")
             else:
-                print(f"{name}: [Set]")
+                print(f"{name}: {value[-4:]}")
         else:
             print(f"{name}: [Not Set]")
 
@@ -314,7 +301,7 @@ def infoMenu(cr):
     printPretty("Username", cr.getUsername())
     printPretty("Email", cr.getEmail())
     printPretty("Address", cr.getAddress())
-    printPretty("Credit Card", cr.getCCNumber(), True)
+    printPretty("Credit Card (last four digits)", cr.getCCNumber(), True)
 
     return "Edit Account", None
 

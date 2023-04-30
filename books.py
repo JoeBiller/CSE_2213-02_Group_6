@@ -2,17 +2,8 @@ class Books:
     def __init__(self, db):
         self.__db = db
 
-#Setters
     def setAmount(self, amount, isbn):
         self.__db.cursor.execute("UPDATE books SET amount = ? WHERE ISBN = ?", (amount, isbn,))
-
-#Check if ISBN exists (Primary key of books, no duplicates)
-    def ISBNTaken(self, isbn):
-        response = self.__db.cursor.execute("SELECT * FROM books WHERE ISBN = ?", (isbn,))
-        if response.fetchone():
-            return True
-        else:
-            return False
 
     def getBookByISBN(self, isbn):
         response = self.__db.cursor.execute("SELECT * FROM books WHERE isbn = ?", (isbn,))
@@ -34,7 +25,7 @@ class Books:
                 genres.append(book[3])
         return genres
 
-def addCartMenu(crt, username, isbn, bk_menu):
+def addCartMenu(crt, username, isbn):
     success = crt.addCart(username, isbn, 1)
     if success:
         print()
@@ -42,9 +33,9 @@ def addCartMenu(crt, username, isbn, bk_menu):
     else:
         print()
         print("Not enough in stock!")
-    return "Book Options", bk_menu
+    return None, None
 
-def removeCartMenu(crt, username, isbn, bk_menu):
+def removeCartMenu(crt, username, isbn):
     success = crt.removeCart(username, isbn)
     if success:
         print()
@@ -52,7 +43,7 @@ def removeCartMenu(crt, username, isbn, bk_menu):
     else:
         print()
         print("Book not in cart!")
-    return "Book Options", bk_menu
+    return None, None
 
 def showBookMenu(cr, bks, crt, book, return_genre):
     print("Book Information")
@@ -72,8 +63,8 @@ def showBookMenu(cr, bks, crt, book, return_genre):
     else:
         bk_menu["Go Back"] = (getBooksMenu, (cr, bks, crt))
 
-    bk_menu["Add Book to Cart"] = (addCartMenu, (crt, cr.getUsername(), book[0], bk_menu))
-    bk_menu["Remove Book to Cart"] = (removeCartMenu, (crt, cr.getUsername(), book[0], bk_menu))
+    bk_menu["Add Book to Cart"] = (addCartMenu, (crt, cr.getUsername(), book[0]))
+    bk_menu["Remove Book to Cart"] = (removeCartMenu, (crt, cr.getUsername(), book[0]))
 
     return "Book Options", bk_menu
 

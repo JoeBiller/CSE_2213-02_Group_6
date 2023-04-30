@@ -8,6 +8,7 @@ db = database.Database("project.db")
 cr = customer.Customer(db)
 bks = books.Books(db)
 crt = shoppingCart.ShoppingCart(db, bks)
+odr = order.Order(db, cr, bks, crt)
 
 def leave(code=0):
     print("Exiting program.")
@@ -23,15 +24,20 @@ menu_system = {
         "Browse All Books": (books.getBooksMenu, (cr, bks, crt)),
         "Browse Books by Category": (books.selectCategoryMenu, (cr, bks, crt)),
         "Cart Information": (shoppingCart.viewCartMenu, (cr, bks, crt)),
+        "View Order History": (order.orderHistoryMenu, (bks, odr,)),
         "Edit Account": (customer.infoMenu, (cr,)),
         "Logout":       (customer.logoutMenu, (cr,)),
         "Exit":         leave
+    },
+    "Cart Options": {
+        "Go Back": "Main Menu",
+        "Remove Book from Cart": (shoppingCart.removeCartMenu, (cr, bks, crt)),
+        "Checkout": (order.checkoutMenu, (odr,))
     },
     "Edit Account": {
         "Go Back":   "Main Menu",
         "Current Account Information": (customer.infoMenu, (cr,)),
         "Edit Name": (customer.setCustomerMenu, (cr, "your name", cr.setName)),
-        "Edit Username": (customer.setCustomerMenu, (cr, "a username", cr.setUsername)),
         "Edit Email": (customer.setCustomerMenu, (cr, "an email address", cr.setEmail)),
         "Edit Password": (customer.changePasswordMenu, (cr,)),
         "Edit Card Info": (customer.setCustomerMenu, (cr, "your credit card number", cr.setCCNumber)),
@@ -103,6 +109,8 @@ def main(menu_system, db, cr):
                 custom_menu_options = options
             elif menu:
                 navigate_to(menu)
+            elif not menu and not options:
+                pass
             else:
                 print()
                 print("There appears to be a problem with this option.")
